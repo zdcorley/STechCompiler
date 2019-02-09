@@ -251,10 +251,12 @@ stageFunctionCode:
   stageFunctionCode CODE
   {
 		gFuncCodeBlock.append($2);
+		delete $2;
   }
   | CODE
   {
 		gFuncCodeBlock.append($1);
+		delete $1;
   }
   ;
 shaderTechDeclaration:
