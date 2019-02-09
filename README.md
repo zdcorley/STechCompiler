@@ -9,6 +9,7 @@ The stech language fixes 4 main annoyances I had with glsl shader dev in the def
   - Automatically assigns layout locations of "in/out" vars transferred between the vert and frag shaders.
   - Automatically assigns layout locations of "in" vars in vert shaders and "out" vars in frag shaders based on configurable hlsl style semantics.
   - Automatically assigns layout bindings of uniforms.
+  
 BUT, I didn't want to fully parse all the syntax of glsl to make it happen, so stechc takes a bit of a easier approach by considering the internals of main function definitions to just be dumb blocks of raw text, and doing the same for BEGINRAW/ENDRAW blocks.
 
 ## Features
