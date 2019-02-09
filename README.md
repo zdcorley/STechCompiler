@@ -94,7 +94,7 @@ shadertech "ForwardLit"
   - The final compiler is named stechfc for "Shader Tech Full Compiler". Originally each component of the compiler (preprocessor, compiler, glslc) was a seperate .exe, and would execute in order within the "stechfc". The stechfc name just happened to be kept around. 
 
 ## Requirements
- STechCompiler relies on C++17 support for <filesystem> usage, as well as an installed version of the vulkan sdk on your PC for glslc. (Using the %VULKAN_SDK% env variable)
+ STechCompiler relies on C++17 support for \<filesystem\> usage, as well as an installed version of the vulkan sdk on your PC for glslc. (Using the %VULKAN_SDK% env variable)
   
 ## Building
  - Compile stechc.l and stechc.y with flex and bison. (flex/bison not included in this repo)
