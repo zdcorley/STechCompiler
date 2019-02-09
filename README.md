@@ -18,6 +18,71 @@ BUT, I didn't want to fully parse all the syntax of glsl to make it happen, so s
   - Supports input and output semantics whose meanings are determined by a config file.
   - Supports many shaders defined within a single stech file. Any number of shadertech blocks may be defined in one file.
 
+## Example Code
+```
+#include "TechInclude/StandardForward.techinc"
+
+// defines a block of text that will directly be inserted into all shaders
+BEGINRAW
+
+struct MyStruct
+{
+    vec4 myVec4;
+};
+
+ENDRAW
+
+uniform sampler2D mytex;
+
+// --- TRANSFER ---
+in -> vmain
+{
+    // Semantics are defined by the stechc.config file found in the same path as the executing stechfc.exe 
+    // See sample/stechc.config for example
+    vec3 inPosition : POSITION;
+    vec3 inNormal : NORMAL;
+    vec4 inTexCoord0 : TEXCOORD0;
+    vec4 inColor : COLOR;
+}
+
+vmain -> fmain
+{
+    vec4 fragColor;
+    vec4 WSNormal;
+    vec4 texCoord0;
+    vec4 WSPos;
+}
+
+fmain -> out
+{
+    vec4 outColor : RT0;
+}
+
+// --- FUNCTIONS ---
+vmain:
+{
+    WSPos =  _RendererData.model * vec4(inPosition, 1.0);
+    WSNormal = _RendererData.model * vec4(inNormal, 0.0);
+    fragColor = inColor;
+    texCoord0 = inTexCoord0;
+
+    gl_Position = _CameraData.proj * _CameraData.view * WSPos;
+}
+
+fmain:
+{
+    vec4 eyePos = _CameraData.invView * vec4(0,0,0,1);
+    outColor = BlinnPhong(texture(mytex, texCoord0.xy).xyz, normalize(WSNormal.xyz), eyePos.xyz, WSPos.xyz);
+}
+
+// Any number of shadertechs may be defined
+shadertech "ForwardLit"
+{
+    vert: vmain;
+    frag: fmain;
+}
+```
+
 ## Limitations and Oddities
   - Only supports vertex and fragment shaders at the moment.
   - No support for structured buffers
