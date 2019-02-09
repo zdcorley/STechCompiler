@@ -87,7 +87,7 @@ shadertech "ForwardLit"
   - Only supports vertex and fragment shaders at the moment.
   - No support for structured buffers
   - No support for layout parameters other than "binding = x"
-  - ALL uniforms are compiled with the std140 data storage layout.
+  - All uniforms are compiled with the std140 data storage layout.
   - The output shader stages' main functions are always named "main"
   - glsl built in variables are still referenced the normal way, such as gl_Position or gl_VertexID. Dont define them in your transfer blocks.
   - The final compiler is named stechfc for "Shader Tech Full Compiler". Originally each component of the compiler (preprocessor, compiler, glslc) was a seperate .exe, and would execute in order within the "stechfc". The stechfc name just happened to be kept around. 
