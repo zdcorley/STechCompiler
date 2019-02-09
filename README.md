@@ -16,7 +16,7 @@ BUT, I didn't want to fully parse all the syntax of glsl to make it happen, so s
   - Supports raw glsl blocks for structs, helper functions, and when the language really doesnt do what you want.
   - Supports #include, #ifdef and #define directives
   - Supports input and output semantics whose meanings are determined by a config file.
-  - Supports many shaders defined within a single stech file. Any number of shadertech "<TechniqueName>" blocks may be defined in one file.
+  - Supports many shaders defined within a single stech file. Any number of shadertech blocks may be defined in one file.
 
 ## Limitations and Oddities
   - Only supports vertex and fragment shaders at the moment.
