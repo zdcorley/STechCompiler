@@ -1,0 +1,105 @@
+BEGINRAW
+
+// Standard Structures
+struct DirectionalLight
+{
+	vec4 lightColor;
+	vec4 direction;
+};
+
+struct PointLight
+{
+	// .w is range
+	vec4 position;
+	// .w is intensity
+	vec4 lightColor;
+};
+
+ENDRAW
+
+// Standard Bound Variables
+
+uniform CameraMaterialData
+{
+	mat4 invView;
+	mat4 view;
+	mat4 proj;
+} _CameraData;
+
+uniform RendererMaterialData
+{
+	mat4 model;
+} _RendererData;
+
+uniform LightMaterialData
+{
+	int dirLightCount;
+	int pointLightCount;
+	int spotLightCount;
+	int pad1;
+	
+	vec4 ambientColor;
+	DirectionalLight directionals[4];
+	PointLight points[4];
+} _LightData;
+
+
+BEGINRAW
+
+vec4 BlinnPhong(vec3 diffuse, vec3 normal, vec3 eye, vec3 point)
+{
+	vec3 toEye = normalize(eye - point);
+	
+	vec3 color = diffuse * _LightData.ambientColor.xyz;
+	
+	// Directional Lights
+	for(int i = 0; i < _LightData.dirLightCount; i++)
+	{
+		vec3 toLight = -_LightData.directionals[i].direction.xyz;
+		float lightFactor = max(dot(normal, toLight), 0.0);
+
+		if(lightFactor > 0.0)
+		{
+			// apply diffuse and spec
+			color += diffuse * _LightData.directionals[i].lightColor.xyz * lightFactor; 
+
+			vec3 halfway = normalize(toLight + toEye);
+
+			float specFactor = pow(max(dot(normal, halfway), 0), 500);
+
+			color += specFactor;
+		}
+	}
+	
+	// Point Lights
+	for(int i = 0; i < _LightData.pointLightCount; i++)
+	{
+		vec3 toPointLight = _LightData.points[i].position.xyz - point;
+		float dist = length(toPointLight);
+		toPointLight = normalize(toPointLight);
+		
+		float pointLightFactor = dot(normal, toPointLight);
+		
+		if(pointLightFactor > 0.0)
+		{
+			// apply diffuse and spec
+			vec3 diffusePortion = (diffuse * _LightData.points[i].lightColor.xyz * pointLightFactor * _LightData.points[i].lightColor.w);
+
+			vec3 halfway = normalize(toPointLight + toEye);
+
+			vec3 specPortion = pow(max(dot(normal, halfway), 0), 50) * _LightData.points[i].lightColor.xyz;
+
+			diffusePortion /= dist;
+			specPortion /= dist;
+			
+			color += diffusePortion; 
+			color += specPortion;
+		}
+	}
+	
+	float alpha = 1.0;
+
+	return vec4(color, alpha);
+}
+
+ENDRAW

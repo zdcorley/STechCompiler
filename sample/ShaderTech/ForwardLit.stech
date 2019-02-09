@@ -1,0 +1,48 @@
+#include "TechInclude/StandardForward.techinc"
+
+uniform sampler2D mytex;
+
+// --- TRANSFER ---
+in -> vmain
+{
+	vec3 inPosition : POSITION;
+	vec3 inNormal : NORMAL;
+	vec4 inTexCoord0 : TEXCOORD0;
+	vec4 inColor : COLOR;
+}
+
+vmain -> fmain
+{
+	vec4 fragColor;
+	vec4 WSNormal;
+	vec4 texCoord0;
+	vec4 WSPos;
+}
+
+fmain -> out
+{
+	vec4 outColor : RT0;
+}
+
+// --- FUNCTIONS ---
+vmain:
+{
+	WSPos =  _RendererData.model * vec4(inPosition, 1.0);
+	WSNormal = _RendererData.model * vec4(inNormal, 0.0);
+	fragColor = inColor;
+	texCoord0 = inTexCoord0;
+
+	gl_Position = _CameraData.proj * _CameraData.view * WSPos;
+}
+
+fmain:
+{
+	vec4 eyePos = _CameraData.invView * vec4(0,0,0,1);
+	outColor = BlinnPhong(texture(mytex, texCoord0.xy).xyz, normalize(WSNormal.xyz), eyePos.xyz, WSPos.xyz);
+}
+
+shadertech "ForwardLit"
+{
+	vert: vmain;
+	frag: fmain;
+}
