@@ -4,6 +4,7 @@
 	extern stechc::ShaderTechFileDeclarations gDecl;
 
 	int gOrder = 0;
+	std::string gFuncCodeBlock = "";
 
 	using namespace stechc;
 	using namespace std;
@@ -234,14 +235,26 @@ varType:
   }
   ;
 stageFunctionDeclaration:
-  STAGEFUNCTIONSTART STARTBRACKET CODE ENDBRACKET
+  STAGEFUNCTIONSTART STARTBRACKET stageFunctionCode ENDBRACKET
   {
 		cout << "FUNCTION DECLARATION!" << endl;
 		FunctionDeclaration funcDec;
 		funcDec.functionName = string($1);
-		funcDec.functionBody = string($3);
+		funcDec.functionBody = gFuncCodeBlock;
 
 		gDecl.funcArr.push_back(funcDec);
+
+		gFuncCodeBlock = "";
+  }
+  ;
+stageFunctionCode:
+  stageFunctionCode CODE
+  {
+		gFuncCodeBlock.append($2);
+  }
+  | CODE
+  {
+		gFuncCodeBlock.append($1);
   }
   ;
 shaderTechDeclaration:
@@ -309,12 +322,14 @@ shaderTechBinding:
 		cout << "SHADER TECH BINDING!" << $3 << endl;
 
 		$$ = StringConcat("v", $3);
+		delete $3;
   }
   | FRAG IS IDENTIFIER ENDCMD
   {
 		cout << "SHADER TECH BINDING!" << $3 << endl;
 
 		$$ = StringConcat("f", $3);
+		delete $3;
   }
   ;
 rawDeclaration:

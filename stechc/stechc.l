@@ -1,7 +1,10 @@
 %{
 	#include <cstdio>
+	#include <cstring>
 	
 	#include "stechc.tab.h"
+
+	int gStageFunctionScopeCount = 0;
 %}
 %option noyywrap
 
@@ -78,11 +81,44 @@ constArrayDecl (\[[0-9]+\])+
 
 <STAGEFUNCTION>
 {
-	{singleLineComment}	{ return COMMENT; }
-	{multiLineComment}	{ return COMMENT; }
-	[ \t\n]*\{	{ return STARTBRACKET; }
-	[^\{\}]*	{ yylval.sval = _strdup(yytext); return CODE; }
-	\}			{ BEGIN INITIAL; return ENDBRACKET; }
+	{singleLineComment}	{ yylval.sval = _strdup(yytext); return CODE; }
+	{multiLineComment}	{ yylval.sval = _strdup(yytext); return CODE; }
+	[ \t\n]*\{			{
+							gStageFunctionScopeCount++;
+							// The first bracket should return the STARTBRACKET SYMBOL, but any other bracket
+							// should just be code
+							if(gStageFunctionScopeCount == 1)
+							{
+								return STARTBRACKET;
+							}
+							else
+							{
+								// This is a "sub scope"
+								yylval.sval = _strdup(yytext); 
+								return CODE;
+							}
+						}
+	\}					{
+							gStageFunctionScopeCount--;
+							if(gStageFunctionScopeCount == 0)
+							{
+								BEGIN INITIAL;
+								return ENDBRACKET; 					
+							}
+							else
+							{
+								// This is a "sub scope"
+								yylval.sval = _strdup(yytext); 
+								return CODE;
+							}
+						}
+	[^\{\}]				{ 
+							if(gStageFunctionScopeCount > 0)
+							{
+								yylval.sval = _strdup(yytext); 
+								return CODE;
+							}
+						}
 }
 
 <RAWBLOCK>
